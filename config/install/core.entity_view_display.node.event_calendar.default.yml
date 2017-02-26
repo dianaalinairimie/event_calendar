@@ -1,0 +1,23 @@
+langcode: en
+status: true
+dependencies:
+    config:
+        - field.field.node.event_calendar.body
+        - node.type.event_calendar
+    module:
+        - text
+        - user
+id: node.event_calendar.default
+targetEntityType: node
+bundle: event_calendar
+mode: default
+content:
+    body:
+        label: hidden
+        type: text_default
+        weight: 101
+        settings: {  }
+        third_party_settings: {  }
+    links:
+        weight: 100
+hidden: {  }
