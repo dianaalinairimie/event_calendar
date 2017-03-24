@@ -552,7 +552,7 @@ display:
     position: 1
     display_options:
       display_extenders: {  }
-      path: admin/config/events/manage-events
+      path: admin/content/events
     cache_metadata:
       max-age: 0
       contexts:

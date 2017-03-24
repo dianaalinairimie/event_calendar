@@ -1,0 +1,4 @@
+event_calendar.admin:
+  title: Events
+  route_name: event_calendar.manage_events
+  base_route: system.admin_content

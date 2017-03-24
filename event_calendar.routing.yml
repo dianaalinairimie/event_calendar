@@ -15,16 +15,9 @@ event_calendar.events_settings:
     _permission: 'administer event calendar settings'
 
 event_calendar.manage_events:
-  path: '/admin/config/events/manage-events'
+  path: '/admin/content/events'
   defaults:
-    _form: '\Drupal\event_calendar\Form\ManageEventsForm'
-    _title: 'Manage Events'
+    _title: 'Events'
+    _controller: '\Drupal\event_calendar\Controller\EventsController:eventsPage'
   requirements:
-    _permission: 'administer event calendar settings'
-
-event_calendar.multiple_update_events_confirm:
-  path: '/admin/config/events/manage-events/update'
-  defaults:
-    _form: '\Drupal\event_calendar\Form\UpdateMultiple'
-  requirements:
-    _permission: 'administer event calendar settings'
+    _permission: 'administer events'
