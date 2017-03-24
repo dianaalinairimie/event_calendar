@@ -1,0 +1,68 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\Entity\Vocabulary;
+
+/**
+ * Implements hook_install().
+ */
+function event_calendar_install() {
+  // Defines default events status.
+  $new_terms = array('Approved', 'Denied', 'Pending');
+
+  // Create terms of events status vocabulary.
+  if (!empty(Vocabulary::load('events_status'))) {
+    foreach ($new_terms as $new_term) {
+      $term = Term::create([
+        'vid' => 'events_status',
+        'name' => $new_term,
+      ]);
+      $term->save();
+    }
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function event_calendar_node_presave(EntityInterface $node) {
+  // Alter node if is event and if is new.
+  if ($node->bundle() == 'event_calendar' && $node->isNew()) {
+    $terms = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadByProperties(['name' => 'Pending']);
+    foreach ($terms as $term) {
+      if ($term->get('vid')
+          ->first()
+          ->getValue()['target_id'] == 'events_status'
+      ) {
+        // Sets default status of event on "Pending".
+        $node->set('field_event_status', $term->id());
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function event_calendar_uninstall() {
+  $storage_handler = \Drupal::entityTypeManager()->getStorage("node");
+  $entities = $storage_handler->loadByProperties(["type" => "event_calendar"]);
+  $storage_handler->delete($entities);
+}
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function event_calendar_views_data_alter(array &$event) {
+  $event['node']['event_calendar_bulk_form'] = array(
+    'title' => t('Event operations bulk form'),
+    'help' => t('Add a form element that lets you run operations on multiple events.'),
+    'field' => array(
+      'id' => 'event_calendar_bulk_form',
+    ),
+  );
+
+}

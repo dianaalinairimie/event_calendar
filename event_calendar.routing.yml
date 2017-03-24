@@ -1,0 +1,30 @@
+event_calendar.admin_index:
+  path: '/admin/config/events'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Event Calendar'
+  requirements:
+    _permission: 'access administration pages'
+
+event_calendar.events_settings:
+  path: '/admin/config/events/events-settings'
+  defaults:
+    _form: '\Drupal\event_calendar\Form\EventsSettingsForm'
+    _title: 'Events Settings'
+  requirements:
+    _permission: 'administer event calendar settings'
+
+event_calendar.manage_events:
+  path: '/admin/config/events/manage-events'
+  defaults:
+    _form: '\Drupal\event_calendar\Form\ManageEventsForm'
+    _title: 'Manage Events'
+  requirements:
+    _permission: 'administer event calendar settings'
+
+event_calendar.multiple_update_events_confirm:
+  path: '/admin/config/events/manage-events/update'
+  defaults:
+    _form: '\Drupal\event_calendar\Form\UpdateMultiple'
+  requirements:
+    _permission: 'administer event calendar settings'

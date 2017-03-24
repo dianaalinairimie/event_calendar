@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: update_event
+label: 'Update event'
+type: node
+plugin: update_event
+configuration: {  }

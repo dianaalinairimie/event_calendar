@@ -1,0 +1,16 @@
+event_calendar.admin_index:
+  title: 'Event Calendar'
+  parent: system.admin_config
+  route_name: event_calendar.admin_index
+
+event_calendar.events_settings:
+  title: 'Events Settings'
+  parent: event_calendar.admin_index
+  description: 'Configure email recipients for events, the email message for admin and for users.'
+  route_name: event_calendar.events_settings
+
+event_calendar.manage_events:
+  title: 'Manage Events'
+  parent: event_calendar.admin_index
+  description: 'Filter events and manage events status.'
+  route_name: event_calendar.manage_events

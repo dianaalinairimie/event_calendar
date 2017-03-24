@@ -3,6 +3,8 @@ status: true
 dependencies:
     config:
         - field.field.node.event_calendar.body
+        - field.field.node.event_calendar.field_event_status
+        - field.field.node.event_calendar.field_event_date
         - node.type.event_calendar
     module:
         - text
@@ -20,4 +22,10 @@ content:
         third_party_settings: {  }
     links:
         weight: 100
-hidden: {  }
+    field_event_date:
+      weight: 102
+      settings: {  }
+      third_party_settings: {  }
+      type: daterange_default
+hidden:
+    field_event_status: true

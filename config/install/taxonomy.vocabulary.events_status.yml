@@ -1,0 +1,11 @@
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - event_calendar
+name: Events Status
+vid: events_status
+description: 'Stores the events status for event calendar.'
+hierarchy: 0
+weight: 0
