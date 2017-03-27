@@ -31,7 +31,7 @@ function event_calendar_node_presave(EntityInterface $node) {
   if ($node->bundle() == 'event_calendar' && $node->isNew()) {
     $terms = \Drupal::entityTypeManager()
       ->getStorage('taxonomy_term')
-      ->loadByProperties(['name' => 'Pending']);
+      ->loadByProperties(['name' => setDefaultStatus()]);
     foreach ($terms as $term) {
       if ($term->get('vid')
           ->first()
@@ -41,6 +41,21 @@ function event_calendar_node_presave(EntityInterface $node) {
         $node->set('field_event_status', $term->id());
       }
     }
+  }
+}
+
+/**
+ * Returns the status of the event chosen on configurations.
+ *
+ * @return string
+ *   The name of the status.
+ */
+function setDefaultStatus() {
+  if (\Drupal::config('events.settings')->get('status')) {
+    return 'Approved';
+  }
+  else {
+    return 'Pending';
   }
 }
 

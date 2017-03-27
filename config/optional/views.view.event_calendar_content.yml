@@ -330,7 +330,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Date'
+          label: Date
           exclude: false
           alter:
             alter_text: false
@@ -395,7 +395,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Status'
+          label: Status
           exclude: false
           alter:
             alter_text: false
@@ -506,7 +506,22 @@ display:
           hierarchy: true
           error_message: true
           plugin_id: taxonomy_index_tid
-      sorts: {  }
+      sorts:
+        created:
+          id: created
+          table: node_field_data
+          field: created
+          relationship: none
+          group_type: group
+          admin_label: ''
+          order: DESC
+          exposed: false
+          expose:
+            label: ''
+          granularity: second
+          entity_type: node
+          entity_field: created
+          plugin_id: date
       title: 'Event Calendar Content'
       header: {  }
       footer: {  }
