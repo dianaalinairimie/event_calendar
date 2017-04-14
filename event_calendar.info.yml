@@ -1,4 +1,4 @@
-name: Event Calendar Module
+name: Event Calendar
 description: Creates and manages events.
 package: Custom
 type: module

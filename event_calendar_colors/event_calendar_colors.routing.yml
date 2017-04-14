@@ -1,0 +1,7 @@
+event_calendar_colors.colors_settings:
+  path: '/admin/config/events/colors-settings'
+  defaults:
+    _form: '\Drupal\event_calendar_colors\Form\ColorsSettingsForm'
+    _title: 'Event colors Settings'
+  requirements:
+    _permission: 'administer event calendar colors'

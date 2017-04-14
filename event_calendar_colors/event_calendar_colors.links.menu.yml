@@ -1,0 +1,5 @@
+event_calendar_colors.colors_settings:
+  title: 'Event Colors Settings'
+  parent: event_calendar.admin_index
+  description: 'Configure email recipients for events, the email message for admin and for users.'
+  route_name: event_calendar_colors.colors_settings
