@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * Define hooks_preprocess_hook().
+ */
+function event_calendar_colors_preprocess_calendar_item(&$variables) {
+  $event_entity = $variables['item']->getEntity();
+  $event_status = \Drupal::entityTypeManager()
+    ->getStorage('taxonomy_term')
+    ->load($event_entity->get('field_event_status')
+      ->first()
+      ->getValue()['target_id']);
+  $event_color = \Drupal::config('event_colors.settings')
+    ->get($event_status->getName());
+
+  // @todo: send event color to template.
+//  return array(
+//    '#theme' => 'calendar_item',
+//    '#status_color' => $event_color
+//  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function event_calendar_colors_theme($existing, $type, $theme, $path) {
+  return [
+    'calendar_item' => [
+      'render element' => 'elements',
+    ],
+  ];
+}
