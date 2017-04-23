@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Implements hook_preprocess_views_view().
+ */
+function event_calendar_popup_preprocess_views_view(&$variables) {
+  if ($variables['view']->id() == 'content_field_date_on_calendar') {
+    $variables['#attached']['library'][] = 'event_calendar_popup/event_popup';
+  }
+
+}

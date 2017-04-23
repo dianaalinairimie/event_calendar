@@ -1,0 +1,10 @@
+event_popup:
+  version: 1.x
+  js:
+    js/event-calendar-popup.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/ajax
+
+

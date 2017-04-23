@@ -1,0 +1,8 @@
+event_calendar_popup.modal:
+  path: 'modal-example/modal/{js}'
+  defaults:
+    _title: 'Modal'
+    _controller: '\Drupal\event_calendar_popup\Controller\EventModalController::modal'
+  requirements:
+    _permission: 'access content'
+    js: 'nojs|ajax'
