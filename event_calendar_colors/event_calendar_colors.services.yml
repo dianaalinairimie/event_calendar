@@ -1,0 +1,4 @@
+services:
+  event_calendar_colors.status_color_manager:
+    class: Drupal\event_calendar_colors\StatusColorManager
+    arguments: ['@theme_handler', '@library.discovery', '@pathauto.alias_cleaner','@file_system']

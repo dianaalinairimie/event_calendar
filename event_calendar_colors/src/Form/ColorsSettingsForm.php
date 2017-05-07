@@ -83,8 +83,12 @@ class ColorsSettingsForm extends ConfigFormBase {
       // Set the color for each event status.
       $events_colors
         ->set($status->name, $form_state->getValue($status->name));
+      $status_colors[$status->name] = $form_state->getValue($status->name);
     }
     $events_colors->save();
+
+    // Generate the new css files based on events status colors.
+    \Drupal::service('event_calendar_colors.status_color_manager')->generateCssFiles($status_colors);
 
     parent::submitForm($form, $form_state);
   }
