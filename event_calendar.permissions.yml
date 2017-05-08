@@ -4,3 +4,5 @@
   title: 'View content of event calendar.'
 'administer events':
   title: 'Administer events.'
+'allow user to add events to calendar':
+  title: 'Allow user to add new events to calendar.'

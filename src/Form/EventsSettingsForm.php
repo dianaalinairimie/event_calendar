@@ -4,6 +4,7 @@ namespace Drupal\event_calendar\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\Entity\Role;
 
 /**
  * Defines the admin configuration form for the calendar module.
@@ -31,6 +32,13 @@ class EventsSettingsForm extends ConfigFormBase {
       $event_status = '0';
     }
 
+    $roles = Role::loadMultiple();
+    foreach ($roles as $role) {
+      if ($role->id() !== 'anonymous') {
+        $roles_name[$role->id()] = $role->label();
+      }
+    }
+
     $form['default_status'] = [
       '#type' => 'details',
       '#title' => $this->t('Default events status'),
@@ -46,17 +54,17 @@ class EventsSettingsForm extends ConfigFormBase {
       '#required' => TRUE
     ];
 
-    $form['email_recipients_request_events'] = [
+    $form['email_recipients_approved_events'] = [
       '#type' => 'details',
-      '#title' => $this->t('Request Events email recipients'),
-      '#description' => $this->t("Select the roles that will receive the email on creation of a new Event and the roles that will receive the email on approved of a new Event. Default admin will receive Email on creation of a new Event. Default all users will receive Email on creation of a new Event."),
+      '#title' => $this->t('Approved Events email recipients'),
+      '#description' => $this->t("Select the roles that will receive the email on approved of a new Event. Default admin will receive Email on creation of a new Event. Default all users will receive Email on creation of a new Event."),
     ];
 
-    $form['email_recipients_request_events']['recipients_request_events'] = [
+    $form['email_recipients_approved_events']['recipients_approved_events'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Roles'),
-      '#default_value' => $events_config->get('recipients_request_events'),
-      '#options' => array(0 => 'Administrator')
+      '#default_value' => $events_config->get('recipients_approved_events'),
+      '#options' => $roles_name
     ];
 
     $form['admin_email'] = [
@@ -106,13 +114,12 @@ class EventsSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
     $this->config('events.settings')
-      ->set('recipients_request_events', $form_state->getValue('recipients_request_events'))
+      ->set('status', $form_state->getValue('status'))
       ->set('recipients_approved_events', $form_state->getValue('recipients_approved_events'))
       ->set('admin_email_subject', $form_state->getValue('admin_email_subject'))
       ->set('admin_email_content', $form_state->getValue('admin_email_content'))
       ->set('users_email_subject', $form_state->getValue('users_email_subject'))
       ->set('users_email_content', $form_state->getValue('users_email_content'))
-      ->set('status', $form_state->getValue('status'))
       ->save();
 
     parent::submitForm($form, $form_state);
@@ -125,6 +132,10 @@ class EventsSettingsForm extends ConfigFormBase {
     return [
       'events.settings',
     ];
+  }
+
+  protected function getDefaultEmailRecipients($options) {
+
   }
 
 }

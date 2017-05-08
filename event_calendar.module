@@ -3,6 +3,7 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_install().
@@ -37,10 +38,13 @@ function event_calendar_node_presave(EntityInterface $node) {
           ->first()
           ->getValue()['target_id'] == 'events_status'
       ) {
-        // Sets default status of event on "Pending".
+        // Sets default status of event on "Pending" or "Approved".
         $node->set('field_event_status', $term->id());
       }
     }
+
+    // Send email when a new event is created if this setting exists.
+    // @todo: send email to administrator when new event is added.
   }
 }
 
@@ -80,4 +84,38 @@ function event_calendar_views_data_alter(array &$event) {
     ),
   );
 
+}
+
+/**
+ * Helper function to send emails on event update.
+ *
+ * @param $event_entity
+ *   The updated event calendar entity.
+ */
+function updateEvents($event_entity) {
+  // Events settings.
+  $events_settings = \Drupal::config('events.settings');
+
+  // The recipients options.
+  $recipients_options = $events_settings->get('recipients_approved_events');
+  // Sends emails only to users who have the configured role.
+  foreach ($recipients_options as $recipient) {
+    if(!empty($recipient)) {
+      $email_subject = $events_settings->get('users_email_subject');
+      $email_content = $events_settings->get('users_email_content');
+
+      // @todo: send emails to specified users.
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function event_calendar_node_update(NodeInterface $node) {
+  // Dispatch content validated event.
+  if ($node->bundle() == 'event_calendar' && $node->hasField('field_event_status') && !empty($node->get('field_event_status')->value) && empty($node->original->get('field_event_status')->value)) {
+    // Send email after event was approved or denied.
+    updateEvents($node);
+  }
 }
