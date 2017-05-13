@@ -52,9 +52,4 @@ function event_calendar_colors_theme_registry_alter(&$theme_registry) {
     $theme_registry['calendar_item']['path'] = 'modules/custom/event_calendar/event_calendar_colors/templates';
     $theme_registry['calendar_item']['theme path'] = 'modules/custom/event_calendar/event_calendar_colors';
   }
-  // Override calendar_header template from calendar module.
-  if (!empty($theme_registry['calendar_header'])) {
-    $theme_registry['calendar_header']['path'] = 'modules/custom/event_calendar/event_calendar_colors/templates';
-    $theme_registry['calendar_header']['theme path'] = 'modules/custom/event_calendar/event_calendar_colors';
-  }
 }

@@ -13,7 +13,6 @@
 #}
 {# @todo Finish Header if this the way to go. #}
 <h3>{{ title }}</h3>
-<div id="view-header">
-    <a href="/add-event-form/modal/nojs" class="use-ajax add-event-button"
-       data-dialog-type="modal" data-dialog-options="{&quot;width&quot;:400}"></a>
-</div>
+{% if add_event_modal %}
+    {{ add_event_modal }}
+{% endif %}

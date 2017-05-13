@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_preprocess_views_view().
@@ -12,17 +13,78 @@ function event_calendar_popup_preprocess_views_view(&$variables) {
 
 }
 
+/**
+ * Implements hooks_preprocess_hook().
+ */
+function event_calendar_colors_preprocess_calendar_header(&$variables) {
+  // Sets current calendar path.
+  $current_url = \Drupal::service('path.validator')
+    ->getUrlIfValid(\Drupal::service('path.current')->getPath());
+  $variables['add_event_modal'] = [
+    '#type' => 'link',
+    '#title' => '',
+    '#url' => Url::fromRoute('event_calendar_popup.modal', [
+      'js' => 'nojs',
+      'current_route' => $current_url->getRouteName()
+    ]),
+    '#attributes' => [
+      'class' => [
+        'use-ajax',
+        'add-event-button',
+      ],
+      'data-dialog-type' => [
+        'modal'
+      ],
+      'data-dialog-options' => [
+        '{&quot;width&quot;:400}'
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hooks_form_alter().
+ */
 function event_calendar_popup_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if ($form_id == 'node_event_calendar_form') {
-    //@todo: Redirect implementation.
-    foreach (array_keys($form['actions']) as $action) {
-      if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
-        $form['actions'][$action]['#submit'][] = 'callback_submit';
+    // Gets the path of ajax call.
+    $event_path = \Drupal::service('path.validator')
+      ->getUrlIfValid(\Drupal::service('path.current')->getPath());
+    // Check if add node form is from modal.
+    if ($event_path->getRouteName() == 'event_calendar_popup.modal') {
+      // Alter add node type calendar_event redirect after submit to calendar page.
+      foreach (array_keys($form['actions']) as $action) {
+        if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+          $form['actions'][$action]['#submit'][] = 'callback_submit';
+        }
       }
     }
   }
 }
 
+/**
+ * Ajax callback to add events from modal.
+ *
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ */
 function callback_submit($form, FormStateInterface $form_state) {
-  
+  // Gets the path of ajax call.
+  $event_path = \Drupal::service('path.validator')
+    ->getUrlIfValid(\Drupal::service('path.current')->getPath());
+  if (!empty($event_path)) {
+    // Redirect after submit on calendar page.
+    $form_state->setRedirect($event_path->getRouteParameters()['current_route']);
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function event_calendar_popup_theme_registry_alter(&$theme_registry) {
+  // Override calendar_header template from calendar module.
+  if (!empty($theme_registry['calendar_header'])) {
+    $theme_registry['calendar_header']['path'] = 'modules/custom/event_calendar/event_calendar_popup/templates';
+    $theme_registry['calendar_header']['theme path'] = 'modules/custom/event_calendar/event_calendar_popup';
+  }
 }

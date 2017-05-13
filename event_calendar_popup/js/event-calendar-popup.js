@@ -3,8 +3,6 @@
 
     Drupal.behaviors.event_popup = {
         attach: function (context, settings) {
-            // Not working.
-            // $('#view-header').append('<a href="/modal-example/modal/nojs" class="use-ajax" id="add-event-button" data-dialog-type="modal" data-dialog-options="{&quot;width&quot;:400}">Click</a>');
             $('table.full tr td, table.mini tr td', context).click(function (e) {
                     e.preventDefault();
                     $('.add-event-button').click();
