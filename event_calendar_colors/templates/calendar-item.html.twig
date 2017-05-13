@@ -34,8 +34,6 @@
  * @see template_preprocess_calendar_item.
  */
 #}
-{#<a href="/modal-example/modal/nojs" class="use-ajax add-event-button"#}
-   {#data-dialog-type="modal" data-dialog-options="{&quot;width&quot;:400}">#}
 <div class="{{ item.class|default('item') }}">
     <div class="view-item">
         <div class="calendar {{ item.granularity }}view">
@@ -58,4 +56,3 @@
         </div>
     </div>
 </div>
-{#</a>#}
