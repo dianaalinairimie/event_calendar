@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\Core\Form\FormStateInterface;
+
 /**
  * Implements hook_preprocess_views_view().
  */
@@ -8,4 +10,19 @@ function event_calendar_popup_preprocess_views_view(&$variables) {
     $variables['#attached']['library'][] = 'event_calendar_popup/event_popup';
   }
 
+}
+
+function event_calendar_popup_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id == 'node_event_calendar_form') {
+    //@todo: Redirect implementation.
+    foreach (array_keys($form['actions']) as $action) {
+      if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+        $form['actions'][$action]['#submit'][] = 'callback_submit';
+      }
+    }
+  }
+}
+
+function callback_submit($form, FormStateInterface $form_state) {
+  
 }

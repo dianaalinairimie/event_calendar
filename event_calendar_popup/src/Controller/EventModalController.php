@@ -1,8 +1,5 @@
 <?php
 
-/**
- *
- */
 namespace Drupal\event_calendar_popup\Controller;
 
 use Drupal\Core\Ajax\AjaxResponse;
@@ -36,3 +33,4 @@ class EventModalController extends ControllerBase {
   }
 
 }
+

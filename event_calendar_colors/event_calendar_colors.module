@@ -14,16 +14,20 @@ define('EVENT_STATUS_CSS_PLACEHOLDER', 'status_placeholder');
  * Define hooks_preprocess_hook().
  */
 function event_calendar_colors_preprocess_calendar_item(&$variables) {
+  // Gets the event entity.
   $event_entity = $variables['item']->getEntity();
+  // Gets status of event.
   $event_status = \Drupal::entityTypeManager()
     ->getStorage('taxonomy_term')
     ->load($event_entity->get('field_event_status')
       ->first()
       ->getValue()['target_id']);
-  //@todo: Attach dynamic event status class to each event.
+  // Sets the event status color.
+  $variables['event_status_color'] = t('status-' . strtolower($event_status->getName()));
 
   // Attach dynamic library to events.
   $variables['#attached']['library'][] = 'event_calendar_colors/event_calendar_colors';
+  $variables['#cache']['max-age'] = 0;
 }
 
 /**
@@ -40,4 +44,12 @@ function event_calendar_colors_library_info_alter(&$libraries, $extension) {
       }
     }
   }
+}
+
+function event_calendar_colors_theme_registry_alter(&$theme_registry) {
+  if (!empty($theme_registry['calendar_item'])) {
+    $theme_registry['calendar_item']['path'] = 'modules/custom/event_calendar/event_calendar_colors/templates';
+    $theme_registry['calendar_item']['theme path'] = 'modules/custom/event_calendar/event_calendar_colors';
+  }
+  ddl($theme_registry);
 }
