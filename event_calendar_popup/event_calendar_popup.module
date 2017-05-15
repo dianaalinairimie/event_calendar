@@ -20,26 +20,31 @@ function event_calendar_colors_preprocess_calendar_header(&$variables) {
   // Sets current calendar path.
   $current_url = \Drupal::service('path.validator')
     ->getUrlIfValid(\Drupal::service('path.current')->getPath());
-  $variables['add_event_modal'] = [
-    '#type' => 'link',
-    '#title' => '',
-    '#url' => Url::fromRoute('event_calendar_popup.modal', [
-      'js' => 'nojs',
-      'current_route' => $current_url->getRouteName()
-    ]),
-    '#attributes' => [
-      'class' => [
-        'use-ajax',
-        'add-event-button',
+  // Gets current user.
+  $user = \Drupal::currentUser();
+  // Check for permission to add events..
+  if ($user->hasPermission('add events on calendar')) {
+    $variables['add_event_modal'] = [
+      '#type' => 'link',
+      '#title' => '',
+      '#url' => Url::fromRoute('event_calendar_popup.modal', [
+        'js' => 'nojs',
+        'current_route' => $current_url->getRouteName()
+      ]),
+      '#attributes' => [
+        'class' => [
+          'use-ajax',
+          'add-event-button',
+        ],
+        'data-dialog-type' => [
+          'modal'
+        ],
+        'data-dialog-options' => [
+          '{&quot;width&quot;:400}'
+        ],
       ],
-      'data-dialog-type' => [
-        'modal'
-      ],
-      'data-dialog-options' => [
-        '{&quot;width&quot;:400}'
-      ],
-    ],
-  ];
+    ];
+  }
 }
 
 /**

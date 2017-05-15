@@ -19,7 +19,6 @@ class EventModalController extends ControllerBase {
         'dialogClass' => 'popup-dialog-class',
         'width' => '75%', // apply or override the width of the dialog
         'height' => '75%',
-        'parameter' => 'hello'
       ];
       $node = \Drupal::entityTypeManager()->getStorage('node')->create(array(
         'type' => 'event_calendar',
@@ -28,10 +27,7 @@ class EventModalController extends ControllerBase {
 
       $response = new AjaxResponse();
       $response->addCommand(new OpenModalDialogCommand('Add Event on calendar', $form, $options));
-
       return $response;
     }
   }
-
 }
-
