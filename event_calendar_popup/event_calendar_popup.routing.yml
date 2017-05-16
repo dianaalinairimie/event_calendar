@@ -4,5 +4,5 @@ event_calendar_popup.modal:
     _title: 'Modal'
     _controller: '\Drupal\event_calendar_popup\Controller\EventModalController::modal'
   requirements:
-    _permission: 'access content'
+    _node_add_access: 'node:event_calendar'
     js: 'nojs|ajax'
