@@ -1,9 +1,10 @@
 <?php
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
-use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_install().
@@ -64,15 +65,6 @@ function setDefaultStatus() {
 }
 
 /**
- * Implements hook_uninstall().
- */
-function event_calendar_uninstall() {
-  $storage_handler = \Drupal::entityTypeManager()->getStorage("node");
-  $entities = $storage_handler->loadByProperties(["type" => "event_calendar"]);
-  $storage_handler->delete($entities);
-}
-
-/**
  * Implements hook_views_data_alter().
  */
 function event_calendar_views_data_alter(array &$event) {
@@ -84,6 +76,21 @@ function event_calendar_views_data_alter(array &$event) {
     ),
   );
 
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function event_calendar_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Don't allow module uninstall if content of type 'event_calendar' exists.
+  if ($form_id == 'system_modules_uninstall_confirm_form') {
+    $storage_handler = \Drupal::entityTypeManager()->getStorage("node");
+    $entities = $storage_handler->loadByProperties(["type" => "event_calendar"]);
+    if (!empty($entities)) {
+      $form_state->setError($form, 'Existing content');
+      drupal_set_message('You can not remove this module until you have removed all of the Event calendar content.', 'error');
+    }
+  }
 }
 
 /**
@@ -100,7 +107,7 @@ function updateEvents($event_entity) {
   $recipients_options = $events_settings->get('recipients_approved_events');
   // Sends emails only to users who have the configured role.
   foreach ($recipients_options as $recipient) {
-    if(!empty($recipient)) {
+    if (!empty($recipient)) {
       $email_subject = $events_settings->get('users_email_subject');
       $email_content = $events_settings->get('users_email_content');
 
