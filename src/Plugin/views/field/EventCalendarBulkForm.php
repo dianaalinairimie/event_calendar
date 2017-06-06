@@ -228,7 +228,7 @@ class EventCalendarBulkForm extends FieldPluginBase implements CacheableDependen
     // If the view is using a table style, provide a placeholder for a
     // "select all" checkbox.
     if (!empty($this->view->style_plugin) && $this->view->style_plugin instanceof Table) {
-      // Add the tableselect css classes.
+      // Add the table select css classes.
       $this->options['element_label_class'] .= 'select-all';
       // Hide the actual label of the field on the table header.
       $this->options['label'] = '';

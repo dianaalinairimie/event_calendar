@@ -5,6 +5,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\Core\Url;
+use Drupal\Core\Database\Database;
 
 /**
  * Implements hook_install().
@@ -44,9 +46,56 @@ function event_calendar_node_presave(EntityInterface $node) {
       }
     }
 
+    // Events settings.
+    $events_settings = \Drupal::config('events.settings');
+
+    if (!empty($event_status = $node->get('field_event_status')
+      ->first())
+    ) {
+      $status_name = \Drupal::service('entity_type.manager')
+        ->getStorage('taxonomy_term')
+        ->load($event_status->getValue()['target_id']);
+    }
+
+    // The recipient options.
+    $data = [
+      'event_name' => $node->getTitle(),
+      'site_name' => \Drupal::config('system.site')->get('name'),
+      'start_date' => $node->get('field_event_date')
+        ->first()
+        ->getValue()['value'],
+      'event_author' => $node->getOwner()->getDisplayName(),
+      'approval_url' => \Drupal::request()
+          ->getSchemeAndHttpHost() . Url::fromRoute('event_calendar.manage_events')
+          ->toString(),
+      'event_status' => $status_name->getName()
+    ];
+
+    $params = [
+      'subject' => Drupal::service('token')
+        ->replace($events_settings->get('admin_email_subject'), $data),
+      'body' => Drupal::service('token')
+        ->replace($events_settings->get('admin_email_content'), $data)
+    ];
+
     // Send email when a new event is created if this setting exists.
-    // @todo: send email to administrator when new event is added.
+    send_email('event_calendar', 'basic', \Drupal::currentUser()
+      ->getEmail(), \Drupal::currentUser()
+      ->getPreferredLangcode(), $params);
   }
+}
+
+/**
+ * 
+ * @param $module
+ * @param $key
+ * @param $to
+ * @param $langcode
+ * @param $params
+ */
+function send_email($module, $key, $to, $langcode, $params) {
+  \Drupal::service('plugin.manager.mail')
+    ->mail($module, $key, $to, $langcode, $params);
 }
 
 /**
@@ -106,14 +155,65 @@ function updateEvents($event_entity) {
   // The recipients options.
   $recipients_options = $events_settings->get('recipients_approved_events');
   // Sends emails only to users who have the configured role.
-  foreach ($recipients_options as $recipient) {
-    if (!empty($recipient)) {
-      $email_subject = $events_settings->get('users_email_subject');
-      $email_content = $events_settings->get('users_email_content');
 
-      // @todo: send emails to specified users.
+  if (!empty($recipients_options)) {
+    if (!empty($event_status = $event_entity->get('field_event_status')
+      ->first())
+    ) {
+      $status_name = \Drupal::service('entity_type.manager')
+        ->getStorage('taxonomy_term')
+        ->load($event_status->getValue()['target_id']);
+    }
+
+    $data = [
+      'event_name' => $event_entity->getTitle(),
+      'site_name' => \Drupal::config('system.site')->get('name'),
+      'start_date' => $event_entity->get('field_event_date')
+        ->first()
+        ->getValue()['value'],
+      'event_author' => $event_entity->getOwner()->getDisplayName(),
+      'approval_url' => \Drupal::request()
+          ->getSchemeAndHttpHost() . Url::fromRoute('event_calendar.manage_events')
+          ->toString(),
+      'event_status' => $status_name->getName()
+    ];
+
+    // The recipient options.
+    $params = [
+      'subject' => Drupal::service('token')
+        ->replace($events_settings->get('users_email_subject'), $data),
+      'body' => Drupal::service('token')
+        ->replace($events_settings->get('users_email_content'), $data)
+    ];
+
+    /** @var QueueFactory $queue_factory */
+    $queue_factory = \Drupal::service('queue');
+    /** @var QueueInterface $queue */
+    $queue = $queue_factory->get('email_processor');
+
+    foreach ($recipients_options as $role) {
+      if (!empty($role)) {
+        $ids = Database::getConnection('default')
+          ->select('user__roles', 'ur')
+          ->fields('ur', ['entity_id'])
+          ->condition('ur.roles_target_id', $role)
+          ->execute()
+          ->fetchAll();
+        foreach ($ids as $id) {
+          $user = \Drupal::service('entity_type.manager')
+            ->getStorage('user')
+            ->load($id->entity_id);
+          $item = new \stdClass();
+          $item->id = $id->entity_id;
+          $item->data = $params;
+          $item->email = $user->getEmail();
+          $item->langcode = $user->getPreferredLangcode();
+          $queue->createItem($item);
+        }
+      }
     }
   }
+
 }
 
 /**
@@ -121,8 +221,24 @@ function updateEvents($event_entity) {
  */
 function event_calendar_node_update(NodeInterface $node) {
   // Dispatch content validated event.
-  if ($node->bundle() == 'event_calendar' && $node->hasField('field_event_status') && !empty($node->get('field_event_status')->value) && empty($node->original->get('field_event_status')->value)) {
+  if ($node->bundle() == 'event_calendar' && $node->hasField('field_event_status') && !empty($node->get('field_event_status')
+      ->first()) && !empty($node->original->get('field_event_status')->first())
+  ) {
     // Send email after event was approved or denied.
     updateEvents($node);
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function event_calendar_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'basic':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['headers']['Content-Type'] = 'text/html';
+      $message['subject'] = $params['subject'];
+      $message['body'][0] = render($params['body']);
+      break;
   }
 }
