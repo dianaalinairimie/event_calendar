@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @QueueWorker(
  * id = "email_processor",
- * title = "My custom Queue Worker",
+ * title = "Email recipients Queue Worker",
  * cron = {"time" = 10}
  * )
  */
@@ -43,8 +43,7 @@ class EmailEventBase extends QueueWorkerBase implements ContainerFactoryPluginIn
    * {@inheritdoc}
    */
   public function processItem($data) {
-
-    // Send email when a new event is created if this setting exists.
+    // If this setting exists, send email when a new event is created.
     $this->mail->mail('event_calendar', 'basic', $data->email, $data->langcode, $data->data);
 
   }

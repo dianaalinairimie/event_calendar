@@ -25,7 +25,9 @@ class ColorsSettingsForm extends ConfigFormBase {
    * ColorsSettingsForm constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
   public function __construct(\Drupal\Core\Config\ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($config_factory);
@@ -74,6 +76,19 @@ class ColorsSettingsForm extends ConfigFormBase {
   }
 
   /**
+   * Helper function that return all events status.
+   *
+   * @return mixed
+   *   An array with taxonomy terms.
+   */
+  private function getEventsStatus() {
+    // Gets all terms of "events_status" taxonomy.
+    return $this->entityTypeManager
+      ->getStorage('taxonomy_term')
+      ->loadTree('events_status');
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
@@ -88,7 +103,8 @@ class ColorsSettingsForm extends ConfigFormBase {
     $events_colors->save();
 
     // Generate the new css files based on events status colors.
-    \Drupal::service('event_calendar_colors.status_color_manager')->generateCssFiles($status_colors);
+    \Drupal::service('event_calendar_colors.status_color_manager')
+      ->generateCssFiles($status_colors);
 
     parent::submitForm($form, $form_state);
   }
@@ -100,19 +116,6 @@ class ColorsSettingsForm extends ConfigFormBase {
     return [
       'event_colors.settings',
     ];
-  }
-
-  /**
-   * Helper function that return all events status.
-   *
-   * @return mixed
-   *   An array with taxonomy terms.
-   */
-  private function getEventsStatus() {
-    // Gets all terms of "events_status" taxonomy.
-    return $this->entityTypeManager
-      ->getStorage('taxonomy_term')
-      ->loadTree('events_status');
   }
 
 }

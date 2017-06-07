@@ -9,9 +9,9 @@ use Drupal\node\Entity\NodeType;
  */
 function event_calendar_popup_preprocess_views_view(&$variables) {
   if ($variables['view']->id() == 'content_field_date_on_calendar') {
+    // Attach library to calendar view template.
     $variables['#attached']['library'][] = 'event_calendar_popup/event_popup';
   }
-
 }
 
 /**
@@ -74,14 +74,16 @@ function event_calendar_popup_form_alter(&$form, FormStateInterface $form_state,
  * Ajax callback to add events from modal.
  *
  * @param $form
- * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   Nested array of form elements that comprise the form.
+ * @param $form_state
+ *   The current state of the form.
  */
 function callback_submit($form, FormStateInterface $form_state) {
   // Gets the path of ajax call.
   $event_path = \Drupal::service('path.validator')
     ->getUrlIfValid(\Drupal::service('path.current')->getPath());
   if (!empty($event_path)) {
-    // Redirect after submit on calendar page.
+    // Redirect to calendar page after submit.
     $form_state->setRedirect($event_path->getRouteParameters()['current_route']);
   }
 }

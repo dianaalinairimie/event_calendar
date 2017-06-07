@@ -11,7 +11,6 @@
                     });
 
                     $('.add-event-button').click();
-                    // Gets clicked date.
                     var current_date = e.target.getAttribute('date-date');
                     if (current_date === null) {
                         current_date = e.target.closest('td').getAttribute('date-date');
@@ -22,7 +21,6 @@
                     }
 
                     var afterLoaded = function () {
-                        // code to execute once elements are in place
                         $(".form-date").val(current_date);
                     };
 

@@ -14,7 +14,7 @@ function events_calendar_token_info() {
     'description' => t('Tokens related to individual content items, or "event calendar".'),
   );
 
-  // Tokens for event calendar.  $notification['start_date'] = array(
+  // Tokens for event calendar.
   $event['event_name'] = array(
     'name' => t("Event name"),
     'description' => t('The name of the event.'),
@@ -31,13 +31,13 @@ function events_calendar_token_info() {
     'name' => t("Event author"),
     'description' => t("The name of the event author."),
   );
-  $event['approval_url'] = array(
-    'name' => t("Approval url"),
-    'description' => t("The approval url of event."),
-  );
   $event['event_status'] = array(
     'name' => t("Event Status"),
     'description' => t("The status of the event."),
+  );
+  $event['approval_url'] = array(
+    'name' => t("Approval url"),
+    'description' => t("The approval url of event."),
   );
 
   return array(
@@ -67,7 +67,6 @@ function event_calendar_tokens($type, $tokens, $data = array(), array $options =
           $replacements[$original] = $data['start_date'];
           break;
 
-
         case 'event_author':
           $replacements[$original] = $data['event_author'];
           break;
@@ -86,4 +85,5 @@ function event_calendar_tokens($type, $tokens, $data = array(), array $options =
 
     return $replacements;
   }
+
 }

@@ -1,12 +1,12 @@
 <?php
 
+use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
-use Drupal\Core\Url;
-use Drupal\Core\Database\Database;
 
 /**
  * Implements hook_install().
@@ -15,7 +15,7 @@ function event_calendar_install() {
   // Defines default events status.
   $new_terms = array('Approved', 'Denied', 'Pending');
 
-  // Create terms of events status vocabulary.
+  // Create terms fors events status vocabulary.
   if (!empty(Vocabulary::load('events_status'))) {
     foreach ($new_terms as $new_term) {
       $term = Term::create([
@@ -31,7 +31,7 @@ function event_calendar_install() {
  * Implements hook_node_presave().
  */
 function event_calendar_node_presave(EntityInterface $node) {
-  // Alter node if is event and if is new.
+  // Check if node's type is event or new.
   if ($node->bundle() == 'event_calendar' && $node->isNew()) {
     $terms = \Drupal::entityTypeManager()
       ->getStorage('taxonomy_term')
@@ -46,18 +46,17 @@ function event_calendar_node_presave(EntityInterface $node) {
       }
     }
 
-    // Events settings.
-    $events_settings = \Drupal::config('events.settings');
-
+    // Check if event has status field.
     if (!empty($event_status = $node->get('field_event_status')
       ->first())
     ) {
+      // Sets events status name
       $status_name = \Drupal::service('entity_type.manager')
         ->getStorage('taxonomy_term')
         ->load($event_status->getValue()['target_id']);
     }
 
-    // The recipient options.
+    // Sets data for email content.
     $data = [
       'event_name' => $node->getTitle(),
       'site_name' => \Drupal::config('system.site')->get('name'),
@@ -71,6 +70,9 @@ function event_calendar_node_presave(EntityInterface $node) {
       'event_status' => $status_name->getName()
     ];
 
+    // Gets events settings.
+    $events_settings = \Drupal::config('events.settings');
+    // Gets email configuration from settings form.
     $params = [
       'subject' => Drupal::service('token')
         ->replace($events_settings->get('admin_email_subject'), $data),
@@ -78,7 +80,7 @@ function event_calendar_node_presave(EntityInterface $node) {
         ->replace($events_settings->get('admin_email_content'), $data)
     ];
 
-    // Send email when a new event is created if this setting exists.
+    //If this setting exists, send email when a new event is created.
     send_email('event_calendar', 'basic', \Drupal::currentUser()
       ->getEmail(), \Drupal::currentUser()
       ->getPreferredLangcode(), $params);
@@ -86,12 +88,18 @@ function event_calendar_node_presave(EntityInterface $node) {
 }
 
 /**
- * 
+ * Send emails on create or update events.
+ *
  * @param $module
+ *   The module's unique name.
  * @param $key
+ *   Unique key to indicate what message to build.
  * @param $to
+ *   The recipient's email.
  * @param $langcode
+ *   The language code.
  * @param $params
+ *   Array of parameters to indicate the body of email.
  */
 function send_email($module, $key, $to, $langcode, $params) {
   \Drupal::service('plugin.manager.mail')
@@ -124,7 +132,6 @@ function event_calendar_views_data_alter(array &$event) {
       'id' => 'event_calendar_bulk_form',
     ),
   );
-
 }
 
 /**
@@ -136,7 +143,7 @@ function event_calendar_form_alter(&$form, FormStateInterface $form_state, $form
     $storage_handler = \Drupal::entityTypeManager()->getStorage("node");
     $entities = $storage_handler->loadByProperties(["type" => "event_calendar"]);
     if (!empty($entities)) {
-      $form_state->setError($form, 'Existing content');
+      $form_state->setError($form, 'Content already exists');
       drupal_set_message('You can not remove this module until you have removed all of the Event calendar content.', 'error');
     }
   }
@@ -155,16 +162,15 @@ function updateEvents($event_entity) {
   // The recipients options.
   $recipients_options = $events_settings->get('recipients_approved_events');
   // Sends emails only to users who have the configured role.
-
   if (!empty($recipients_options)) {
     if (!empty($event_status = $event_entity->get('field_event_status')
-      ->first())
-    ) {
+      ->first())) {
       $status_name = \Drupal::service('entity_type.manager')
         ->getStorage('taxonomy_term')
         ->load($event_status->getValue()['target_id']);
     }
 
+    // Sets data for email content.
     $data = [
       'event_name' => $event_entity->getTitle(),
       'site_name' => \Drupal::config('system.site')->get('name'),
@@ -178,7 +184,7 @@ function updateEvents($event_entity) {
       'event_status' => $status_name->getName()
     ];
 
-    // The recipient options.
+    // Gets email configuration from settings form.
     $params = [
       'subject' => Drupal::service('token')
         ->replace($events_settings->get('users_email_subject'), $data),
@@ -186,11 +192,10 @@ function updateEvents($event_entity) {
         ->replace($events_settings->get('users_email_content'), $data)
     ];
 
-    /** @var QueueFactory $queue_factory */
     $queue_factory = \Drupal::service('queue');
-    /** @var QueueInterface $queue */
     $queue = $queue_factory->get('email_processor');
 
+    // Add emails of recipients in queue.
     foreach ($recipients_options as $role) {
       if (!empty($role)) {
         $ids = Database::getConnection('default')
@@ -213,14 +218,13 @@ function updateEvents($event_entity) {
       }
     }
   }
-
 }
 
 /**
  * Implements hook_node_update().
  */
 function event_calendar_node_update(NodeInterface $node) {
-  // Dispatch content validated event.
+  // Check if event status is updated.
   if ($node->bundle() == 'event_calendar' && $node->hasField('field_event_status') && !empty($node->get('field_event_status')
       ->first()) && !empty($node->original->get('field_event_status')->first())
   ) {

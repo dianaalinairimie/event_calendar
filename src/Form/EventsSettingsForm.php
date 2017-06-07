@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\Role;
 
 /**
- * Defines the admin configuration form for the calendar module.
+ * Defines the admin configuration form for the event calendar module.
  *
  * @package Drupal\event_calendar\Form
  */
@@ -32,6 +32,7 @@ class EventsSettingsForm extends ConfigFormBase {
       $event_status = '0';
     }
 
+    // Sets an array with all users roles.
     $roles = Role::loadMultiple();
     foreach ($roles as $role) {
       if ($role->id() !== 'anonymous') {
@@ -39,7 +40,7 @@ class EventsSettingsForm extends ConfigFormBase {
       }
     }
 
-    // Check if exists recipients for approved events.
+    // Check if recipients exist for approved events.
     if (empty(array_filter($events_config->get('recipients_approved_events')))) {
       $config_roles_name = $events_config->get('recipients_approved_events');
       // Default sets all authenticated users receive email on approved events.
@@ -143,10 +144,6 @@ class EventsSettingsForm extends ConfigFormBase {
     return [
       'events.settings',
     ];
-  }
-
-  protected function getDefaultEmailRecipients($options) {
-
   }
 
 }

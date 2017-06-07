@@ -1,5 +1,5 @@
 name: Event Calendar Popup
-description: Create and edit events in pop-up
+description: Create and edit events in pop-up.
 package: Custom
 type: module
 core: 8.x

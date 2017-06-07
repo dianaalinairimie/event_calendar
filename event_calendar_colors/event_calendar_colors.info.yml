@@ -1,5 +1,5 @@
 name: Event Calendar Colors
-description: Manage colors for events
+description: Manage colors of events.
 package: Custom
 type: module
 core: 8.x

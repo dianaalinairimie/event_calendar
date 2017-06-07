@@ -6,11 +6,11 @@ event_calendar.admin_index:
 event_calendar.events_settings:
   title: 'Events Settings'
   parent: event_calendar.admin_index
-  description: 'Configure email recipients for events, the email message for admin and for users.'
+  description: 'Configure email recipients for events, the email messages for admin and for users.'
   route_name: event_calendar.events_settings
 
 event_calendar.admin:
   title: Events
   route_name: event_calendar.manage_events
   parent: system.admin_content
-  description: 'List all events and manage events status.'
+  description: 'View and manage events status.'
