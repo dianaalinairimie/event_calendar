@@ -39,6 +39,14 @@ class EventsSettingsForm extends ConfigFormBase {
       }
     }
 
+    // Check if exists recipients for approved events.
+    if (empty(array_filter($events_config->get('recipients_approved_events')))) {
+      $config_roles_name = $events_config->get('recipients_approved_events');
+      // Default sets all authenticated users receive email on approved events.
+      $config_roles_name['authenticated'] = 'authenticated';
+      $events_config->set('recipients_approved_events', $config_roles_name);
+    }
+
     $form['default_status'] = [
       '#type' => 'details',
       '#title' => $this->t('Default events status'),
