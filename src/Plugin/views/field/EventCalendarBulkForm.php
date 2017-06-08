@@ -18,6 +18,7 @@ use Drupal\views\Plugin\views\style\Table;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\taxonomy\Entity\Term;
 
 /**
  * Defines a actions-based bulk operation form element.
@@ -211,11 +212,11 @@ class EventCalendarBulkForm extends FieldPluginBase implements CacheableDependen
 
     $selected_actions = $form_state->getValue(array(
       'options',
-      'selected_actions'
+      'selected_actions',
     ));
     $form_state->setValue(array(
       'options',
-      'selected_actions'
+      'selected_actions',
     ), array_values(array_filter($selected_actions)));
   }
 
@@ -245,7 +246,7 @@ class EventCalendarBulkForm extends FieldPluginBase implements CacheableDependen
   /**
    * Form constructor for the bulk form.
    *
-   * @param array $form
+   * @param $form
    *   An associative array containing the structure of the form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
@@ -312,6 +313,7 @@ class EventCalendarBulkForm extends FieldPluginBase implements CacheableDependen
    *
    * @param bool $filtered
    *   (optional) Whether to filter actions to selected actions.
+   *
    * @return array
    *   An associative array of operations, suitable for a select element.
    */
@@ -319,7 +321,7 @@ class EventCalendarBulkForm extends FieldPluginBase implements CacheableDependen
     $query = \Drupal::entityQuery('taxonomy_term');
     $query->condition('vid', "events_status");
     $tids = $query->execute();
-    $terms = \Drupal\taxonomy\Entity\Term::loadMultiple($tids);
+    $terms = Term::loadMultiple($tids);
     foreach ($terms as $term) {
       $options[$term->getName()] = $term->getName();
     }
@@ -354,7 +356,7 @@ class EventCalendarBulkForm extends FieldPluginBase implements CacheableDependen
           $this->drupalSetMessage($this->t('No access to execute %action on the @entity_type_label %entity_label.', [
             '%action' => $action->label(),
             '@entity_type_label' => $entity->getEntityType()->getLabel(),
-            '%entity_label' => $entity->label()
+            '%entity_label' => $entity->label(),
           ]), 'error');
           continue;
         }
@@ -370,8 +372,7 @@ class EventCalendarBulkForm extends FieldPluginBase implements CacheableDependen
       foreach ($terms as $term) {
         if ($term->get('vid')
             ->first()
-            ->getValue()['target_id'] == 'events_status'
-        ) {
+            ->getValue()['target_id'] == 'events_status') {
           $entities['action'] = $term->id();
         }
       }

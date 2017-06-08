@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
  * Defines the admin configuration form for the event colors module.
@@ -29,7 +30,7 @@ class ColorsSettingsForm extends ConfigFormBase {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    */
-  public function __construct(\Drupal\Core\Config\ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($config_factory);
     $this->entityTypeManager = $entity_type_manager;
   }
@@ -68,7 +69,7 @@ class ColorsSettingsForm extends ConfigFormBase {
       $form['event_colors'][$status->name] = [
         '#type' => 'color',
         '#title' => $this->t($status->name),
-        '#default_value' => $events_colors->get($status->name)
+        '#default_value' => $events_colors->get($status->name),
       ];
     }
 

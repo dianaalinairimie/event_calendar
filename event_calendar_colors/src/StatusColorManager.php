@@ -54,7 +54,7 @@ class StatusColorManager implements StatusColorManagerInterface {
    * @param \Drupal\Core\File\FileSystemInterface $file_system
    *   The file system.
    */
-  public function __construct(ThemeHandlerInterface $theme_handler, LibraryDiscoveryInterface $library_discovery,AliasCleanerInterface $alias_cleaner, FileSystemInterface $file_system) {
+  public function __construct(ThemeHandlerInterface $theme_handler, LibraryDiscoveryInterface $library_discovery, AliasCleanerInterface $alias_cleaner, FileSystemInterface $file_system) {
     $this->themeHandler = $theme_handler;
     $this->libraryDiscovery = $library_discovery;
     $this->aliasCleaner = $alias_cleaner;

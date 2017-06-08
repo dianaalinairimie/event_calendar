@@ -8,7 +8,6 @@ use Drupal\Core\Mail\MailManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
  * @QueueWorker(
  * id = "email_processor",
  * title = "Email recipients Queue Worker",
@@ -18,13 +17,17 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class EmailEventBase extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
+   * The mail manager service.
    *
-   * @var Drupal\Core\Mail\MailManager
+   * @var \Drupal\Core\Mail\MailManager
    */
   protected $mail;
 
   /**
-   * constructor
+   * EmailEventBase constructor.
+   *
+   * @param \Drupal\Core\Mail\MailManager $mail
+   *   Mail manager service.
    */
   public function __construct(MailManager $mail) {
     $this->mail = $mail;

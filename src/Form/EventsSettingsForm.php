@@ -60,7 +60,7 @@ class EventsSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Available default status'),
       '#default_value' => $event_status,
       '#options' => array(0 => 'Pending', 1 => 'Approved'),
-      '#required' => TRUE
+      '#required' => TRUE,
     ];
 
     $form['email_recipients_approved_events'] = [
@@ -73,14 +73,14 @@ class EventsSettingsForm extends ConfigFormBase {
       '#type' => 'checkboxes',
       '#title' => $this->t('Roles'),
       '#default_value' => $events_config->get('recipients_approved_events'),
-      '#options' => $roles_name
+      '#options' => $roles_name,
     ];
 
     $form['admin_email'] = [
       '#type' => 'details',
       '#title' => $this->t('Email Settings For Admin'),
       '#open' => FALSE,
-      '#description' => $this->t("Edit the email messages sent to administrator/s. Available variables are: [event_calendar:event_name], [event_calendar:event_author], [event_calendar:event_status], [event_calendar:site_name], [event_calendar:approval_url], [event_calendar:start_date].")
+      '#description' => $this->t("Edit the email messages sent to administrator/s. Available variables are: [event_calendar:event_name], [event_calendar:event_author], [event_calendar:event_status], [event_calendar:site_name], [event_calendar:approval_url], [event_calendar:start_date]."),
     ];
 
     $form['admin_email']['admin_email_subject'] = [
@@ -88,33 +88,33 @@ class EventsSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Subject'),
       '#default_value' =>
         [
-          '#markup' => !empty($events_config->get('admin_email_subject')) ? $events_config->get('admin_email_subject') : $this->t('New event is created')
-        ]
+          '#markup' => !empty($events_config->get('admin_email_subject')) ? $events_config->get('admin_email_subject') : $this->t('New event is created'),
+        ],
     ];
 
     $form['admin_email']['admin_email_content'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Message'),
-      '#default_value' => !empty($events_config->get('admin_email_content')) ? $events_config->get('admin_email_content') : $this->t('Hello, A new event "[event_calendar:event_name]" is created at "[event_calendar:site_name]" by "[event_calendar:event_author]" Start Date: "[event_calendar:start_date]". Please give your approval to successfully organize this event at [event_calendar:approval_url]. ( [event_calendar:site_name] team')
+      '#default_value' => !empty($events_config->get('admin_email_content')) ? $events_config->get('admin_email_content') : $this->t('Hello, A new event "[event_calendar:event_name]" is created at "[event_calendar:site_name]" by "[event_calendar:event_author]" Start Date: "[event_calendar:start_date]". Please give your approval to successfully organize this event at [event_calendar:approval_url]. ( [event_calendar:site_name] team'),
     ];
 
     $form['users_email'] = [
       '#type' => 'details',
       '#title' => $this->t('Email Settings For Users'),
       '#open' => FALSE,
-      '#description' => $this->t("Edit the email messages sent to users. Available variables are: [event_calendar:event_name], [event_calendar:event_author], [event_calendar:event_status], [event_calendar:site_name], [event_calendar:approval_url], [event_calendar:start_date].")
+      '#description' => $this->t("Edit the email messages sent to users. Available variables are: [event_calendar:event_name], [event_calendar:event_author], [event_calendar:event_status], [event_calendar:site_name], [event_calendar:approval_url], [event_calendar:start_date]."),
     ];
 
     $form['users_email']['users_email_subject'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Subject'),
-      '#default_value' => !empty($events_config->get('users_email_subject')) ? $events_config->get('users_email_subject') : $this->t('[event_calendar:event_status] event')
+      '#default_value' => !empty($events_config->get('users_email_subject')) ? $events_config->get('users_email_subject') : $this->t('[event_calendar:event_status] event'),
     ];
 
     $form['users_email']['users_email_content'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Message'),
-      '#default_value' => !empty($events_config->get('users_email_content')) ? $events_config->get('users_email_content') : $this->t('Hello, A new event "[event_calendar:event_name]" was [event_calendar:event_status] at "[event_calendar:site_name]" by "[event_calendar:event_author]" Start Date: "[event_calendar:start_date]". ( [event_calendar:site_name] team')
+      '#default_value' => !empty($events_config->get('users_email_content')) ? $events_config->get('users_email_content') : $this->t('Hello, A new event "[event_calendar:event_name]" was [event_calendar:event_status] at "[event_calendar:site_name]" by "[event_calendar:event_author]" Start Date: "[event_calendar:start_date]". ( [event_calendar:site_name] team'),
     ];
 
     return parent::buildForm($form, $form_state);

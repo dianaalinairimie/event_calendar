@@ -3,7 +3,9 @@
 namespace Drupal\event_calendar_colors;
 
 /**
- * Interface StatusColorManagerInterface
+ * Interface StatusColorManagerInterface.
+ *
+ * @package Drupal\event_calendar_colors
  */
 interface StatusColorManagerInterface {
 

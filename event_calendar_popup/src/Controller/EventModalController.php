@@ -13,6 +13,15 @@ use Drupal\Core\Controller\ControllerBase;
  */
 class EventModalController extends ControllerBase {
 
+  /**
+   * AJAX callback for open modal.
+   *
+   * @param string $js
+   *   Ajax request parameter.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   The AJAX response.
+   */
   public function modal($js = 'nojs') {
     if ($js == 'ajax') {
       // Sets options for modal.
@@ -28,9 +37,11 @@ class EventModalController extends ControllerBase {
 
       // Create new AJAX response.
       $response = new AjaxResponse();
-      // On click, returns a modal with the form for adding a new node of type "event".
+      // Returns a modal with the form for adding a new node of type "event".
       $response->addCommand(new OpenModalDialogCommand('Add Event on calendar', $form, $options));
       return $response;
+
     }
   }
+
 }
