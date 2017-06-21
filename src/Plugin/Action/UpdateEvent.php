@@ -40,6 +40,8 @@ class UpdateEvent extends ActionBase {
    * {@inheritdoc}
    */
   public function access($object, AccountInterface $account = NULL, $return_as_object = FALSE) {
+    // @todo: after development declarations like that should be removed.
+    // @todo: it affects the performance.
     /** @var \Drupal\node\NodeInterface $object */
     $result = $object->access('update', $account, TRUE)
       ->andIf($object->status->access('edit', $account, TRUE));

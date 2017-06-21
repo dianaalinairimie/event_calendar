@@ -1,3 +1,4 @@
 .status-status_placeholder {
+    /* @todo: You shouldn't use important. It can't be overridden. */
     background-color: #ffffff !important;
 }

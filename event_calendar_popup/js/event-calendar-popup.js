@@ -2,6 +2,9 @@
     "use strict";
 
     Drupal.behaviors.event_popup = {
+        // @todo: There is not a single comments in this file, no logic comments
+        // @todo: and no function comments, I don't understand what you are
+        // @todo: trying to do.
         attach: function (context, settings) {
             $('table.full tr td, table.mini tr td', context).click(function (e) {
                     e.preventDefault();

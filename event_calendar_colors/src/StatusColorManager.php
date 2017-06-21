@@ -30,7 +30,8 @@ class StatusColorManager implements StatusColorManagerInterface {
 
   /**
    * The alias cleaner service.
-   *
+   * @todo: this is not right. It is another class that you need.
+   * @todo: is the AliasCleaner in core ?
    * @var Drupal\Core\Asset\LibraryDiscovery
    */
   protected $aliasCleaner;

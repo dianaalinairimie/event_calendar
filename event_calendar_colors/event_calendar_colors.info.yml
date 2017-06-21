@@ -1,5 +1,6 @@
 name: Event Calendar Colors
 description: Manage colors of events.
+# @todo: The package should be Event Calendar.
 package: Custom
 type: module
 core: 8.x
@@ -8,4 +9,3 @@ dependencies:
   - event_calendar
   - color_field
   - pathauto
-

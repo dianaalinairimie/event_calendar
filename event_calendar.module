@@ -1,5 +1,7 @@
 <?php
 
+// @todo: file comment
+
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -10,11 +12,15 @@ use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Implements hook_install().
+ * @todo: install should be in .install file.
  */
 function event_calendar_install() {
   // Defines default events status.
   $new_terms = array('Approved', 'Denied', 'Pending');
-
+  // @todo: Instead of ::load, ::create function you should use entity type
+  // @todo: manager. You can also add a service that saves events status.
+  // @todo: It is hard to believe that you don't have any service defined in this
+  // @todo: module.
   // Create terms fors events status vocabulary.
   if (!empty(Vocabulary::load('events_status'))) {
     foreach ($new_terms as $new_term) {
@@ -29,8 +35,18 @@ function event_calendar_install() {
 
 /**
  * Implements hook_node_presave().
+ * @todo: Here you should use NodeInterface instead of EntityInterface,
+ * @todo: because you know for sure that this is a node.
  */
 function event_calendar_node_presave(EntityInterface $node) {
+  // @todo: There is too much logic, it verifies the node type, the event status,
+  // @todo: gets the informations from the event settings, constructs the email
+  // @todo: and sends it. This part should be broke down in multiple services.
+  // @todo first to make the checks and get the all the data neeed for
+  // @todo: constructing the  message. The second one should create the email
+  // @todo: and send it. Like it is now, it is not flexible, reusable and
+  // @todo: testable. Keep in mind that this is a contrib module and direct
+  // @todo: modifications will be not allowed.
   // Check if node's type is event or new.
   if ($node->bundle() == 'event_calendar' && $node->isNew()) {
     $terms = \Drupal::entityTypeManager()
@@ -113,6 +129,9 @@ function send_email($module, $key, $to, $langcode, $params) {
  *   The name of the status.
  */
 function setDefaultStatus() {
+  // @todo: A best practice is to keep a single return at the end of the
+  // @todo: function because it is more readable. Here you can use one line
+  // @todo: if. return (condtion) ? x : y;
   if (\Drupal::config('events.settings')->get('status')) {
     return 'Approved';
   }
@@ -125,6 +144,7 @@ function setDefaultStatus() {
  * Implements hook_views_data_alter().
  */
 function event_calendar_views_data_alter(array &$event) {
+  // @todo: You are referencing views, but it is not set as a dependency.
   $event['node']['event_calendar_bulk_form'] = array(
     'title' => t('Event operations bulk form'),
     'help' => t('Add a form element that lets you run operations on multiple events.'),
@@ -156,6 +176,11 @@ function event_calendar_form_alter(&$form, FormStateInterface $form_state, $form
  *   The updated event calendar entity.
  */
 function updateEvents($event_entity) {
+  // @todo: Helper function should not be defined in modules, they should be
+  // @todo: moved in services or traits.
+  // @todo: Same issue here as on node presave, too much logic.
+  // @todo: When defining methods or services you should remove or|and in logic.
+  // @todo: i.e.: a method should not save the node and send the mail.
   // Events settings.
   $events_settings = \Drupal::config('events.settings');
 
@@ -222,11 +247,16 @@ function updateEvents($event_entity) {
 
 /**
  * Implements hook_node_update().
+ * @todo: in contrib modules is a best practice to keep the hooks in
+ * @todo: alphabetical order.
+ * @todo: Keep the same definitions, here you use NodeInterface, on presave
+ * @todo: EntityInterface.
  */
 function event_calendar_node_update(NodeInterface $node) {
   // Check if event status is updated.
   if ($node->bundle() == 'event_calendar' && $node->hasField('field_event_status') && !empty($node->get('field_event_status')
       ->first()) && !empty($node->original->get('field_event_status')->first())
+  // @todo: this is ugly.
   ) {
     // Send email after event was approved or denied.
     updateEvents($node);
@@ -244,5 +274,7 @@ function event_calendar_mail($key, &$message, $params) {
       $message['subject'] = $params['subject'];
       $message['body'][0] = render($params['body']);
       break;
+
+      // @todo: default is missing.
   }
 }

@@ -1,6 +1,7 @@
 name: Event Calendar
 description: Creates and manages events.
-package: Custom
+# @todo: The package should be Event Calendar.
+package: custom
 type: module
 core: 8.x
 

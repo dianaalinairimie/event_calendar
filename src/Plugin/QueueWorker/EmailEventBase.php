@@ -8,6 +8,7 @@ use Drupal\Core\Mail\MailManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * @todo: The indentation is not ok here.
  * @QueueWorker(
  * id = "email_processor",
  * title = "Email recipients Queue Worker",
@@ -48,7 +49,6 @@ class EmailEventBase extends QueueWorkerBase implements ContainerFactoryPluginIn
   public function processItem($data) {
     // If this setting exists, send email when a new event is created.
     $this->mail->mail('event_calendar', 'basic', $data->email, $data->langcode, $data->data);
-
   }
 
 }

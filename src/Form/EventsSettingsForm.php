@@ -33,6 +33,7 @@ class EventsSettingsForm extends ConfigFormBase {
     }
 
     // Sets an array with all users roles.
+    // @todo: use entity type manager, injected.
     $roles = Role::loadMultiple();
     foreach ($roles as $role) {
       if ($role->id() !== 'anonymous') {
@@ -124,6 +125,7 @@ class EventsSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // @todo: try to move this to a service.
 
     $this->config('events.settings')
       ->set('status', $form_state->getValue('status'))

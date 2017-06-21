@@ -1,5 +1,6 @@
 name: Event Calendar Popup
 description: Create and edit events in pop-up.
+# @todo: The package should be Event Calendar.
 package: Custom
 type: module
 core: 8.x

@@ -18,6 +18,6 @@ event_calendar.manage_events:
   path: '/admin/content/events'
   defaults:
     _title: 'Events'
-    _controller: '\Drupal\event_calendar\Controller\EventsController:eventsPage'
+    _form: '\Drupal\event_calendar\Form\EventsSettingsForm'
   requirements:
     _permission: 'administer events'

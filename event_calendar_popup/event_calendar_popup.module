@@ -6,8 +6,10 @@ use Drupal\node\Entity\NodeType;
 
 /**
  * Implements hook_preprocess_views_view().
+ * @todo: keep the same comments here too as they are set in event_calendar.module.
  */
 function event_calendar_popup_preprocess_views_view(&$variables) {
+  // @todo: views are not in dependency.
   if ($variables['view']->id() == 'content_field_date_on_calendar') {
     // Attach library to calendar view template.
     $variables['#attached']['library'][] = 'event_calendar_popup/event_popup';
@@ -77,6 +79,7 @@ function event_calendar_popup_form_alter(&$form, FormStateInterface $form_state,
  *   Nested array of form elements that comprise the form.
  * @param $form_state
  *   The current state of the form.
+ * @todo: you should always prefix with the module name.
  */
 function callback_submit($form, FormStateInterface $form_state) {
   // Gets the path of ajax call.
@@ -92,8 +95,10 @@ function callback_submit($form, FormStateInterface $form_state) {
  * Implements hook_theme_registry_alter().
  */
 function event_calendar_popup_theme_registry_alter(&$theme_registry) {
+  // @todo I didn't checked all the comments, but keep them in 3'rd person.
   // Override calendar_header template from calendar module.
   if (!empty($theme_registry['calendar_header'])) {
+    // @todo: modules/custom/... ??? It it will only work for you.
     $theme_registry['calendar_header']['path'] = 'modules/custom/event_calendar/event_calendar_popup/templates';
     $theme_registry['calendar_header']['theme path'] = 'modules/custom/event_calendar/event_calendar_popup';
   }
