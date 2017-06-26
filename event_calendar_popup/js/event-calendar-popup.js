@@ -2,9 +2,7 @@
     "use strict";
 
     Drupal.behaviors.event_popup = {
-        // @todo: There is not a single comments in this file, no logic comments
-        // @todo: and no function comments, I don't understand what you are
-        // @todo: trying to do.
+        // On click on any table cell, open the add event pop-up.
         attach: function (context, settings) {
             $('table.full tr td, table.mini tr td', context).click(function (e) {
                     e.preventDefault();
@@ -14,12 +12,13 @@
                     });
 
                     $('.add-event-button').click();
+                    // Gets clicked date.
                     var current_date = e.target.getAttribute('date-date');
                     if (current_date === null) {
                         current_date = e.target.closest('td').getAttribute('date-date');
+                        // Sets default date as current date.
                         if (current_date === null) {
                             current_date = formatDate(Date());
-                            console.log(current_date);
                         }
                     }
 
@@ -37,6 +36,7 @@
                     };
                     checkLoaded();
 
+                    // Converts date in required format.
                     function formatDate(date) {
                         var d = new Date(date),
                             month = '' + (d.getMonth() + 1),

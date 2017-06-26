@@ -1,0 +1,13 @@
+services:
+  event_calendar.taxonomy_terms_generator:
+    class: Drupal\event_calendar\TaxonomyTermsGenerator
+    arguments: ['@entity_type.manager']
+  event_calendar.message_builder:
+    class: Drupal\event_calendar\MessageBuilder
+    arguments: ['@entity_type.manager', '@config.factory', '@request_stack']
+  event_calendar.email_sender:
+    class: Drupal\event_calendar\EmailSender
+    arguments: ['@config.factory', '@current_user', '@token']
+  event_calendar.email_queue_sender:
+    class: Drupal\event_calendar\EmailQueueSender
+    arguments: ['@entity_type.manager', '@token', '@queue']

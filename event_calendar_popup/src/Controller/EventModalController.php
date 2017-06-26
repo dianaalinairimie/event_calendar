@@ -30,20 +30,17 @@ class EventModalController extends ControllerBase {
         'width' => '75%',
         'height' => '75%',
       ];
-      // @todo: entity type manager should be injected.
-      $node = \Drupal::entityTypeManager()->getStorage('node')->create(array(
+      $node = $this->entityTypeManager()->getStorage('node')->create(array(
         'type' => 'event_calendar',
       ));
-      $form = \Drupal::service('entity.form_builder')->getForm($node);
+      $form = $this->entityFormBuilder()->getForm($node);
 
-      // Create new AJAX response.
+      // Creates new AJAX response.
       $response = new AjaxResponse();
-      // Returns a modal with the form for adding a new node of type "event".
-      // @todo it is not returning, at this step you only create the response.
+      // Creates a modal with the form for adding a new node of type "event".
       $response->addCommand(new OpenModalDialogCommand('Add Event on calendar', $form, $options));
 
       return $response;
-
     }
   }
 

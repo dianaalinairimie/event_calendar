@@ -1,7 +1,6 @@
 name: Event Calendar Colors
 description: Manage colors of events.
-# @todo: The package should be Event Calendar.
-package: Custom
+package: Event Calendar
 type: module
 core: 8.x
 

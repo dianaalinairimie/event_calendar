@@ -1,7 +1,6 @@
 name: Event Calendar
 description: Creates and manages events.
-# @todo: The package should be Event Calendar.
-package: custom
+package: Event Calendar
 type: module
 core: 8.x
 
@@ -9,3 +8,4 @@ dependencies:
   - node
   - calendar
   - datetime_range
+  - views

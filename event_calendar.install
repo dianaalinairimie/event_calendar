@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Contains install, uninstall and update tasks.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function event_calendar_install() {
+  // Defines default events status.
+  $new_terms = array('Approved', 'Denied', 'Pending');
+
+  // Creates terms for events status vocabulary.
+  \Drupal::service('event_calendar.taxonomy_terms_generator')
+    ->termsGenerator($new_terms, 'events_status');
+}

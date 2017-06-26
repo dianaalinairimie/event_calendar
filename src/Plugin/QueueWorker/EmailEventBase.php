@@ -8,11 +8,10 @@ use Drupal\Core\Mail\MailManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * @todo: The indentation is not ok here.
  * @QueueWorker(
- * id = "email_processor",
- * title = "Email recipients Queue Worker",
- * cron = {"time" = 10}
+ *   id = "email_processor",
+ *   title = "Email recipients Queue Worker",
+ *   cron = {"time" = 10}
  * )
  */
 class EmailEventBase extends QueueWorkerBase implements ContainerFactoryPluginInterface {

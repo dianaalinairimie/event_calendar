@@ -11,7 +11,7 @@ define('EVENT_STATUS_DEFAULT_COLOR', '#FFFFFF');
 define('EVENT_STATUS_CSS_PLACEHOLDER', 'status_placeholder');
 
 /**
- * Define hooks_preprocess_hook().
+ * Defines hooks_preprocess_hook().
  */
 function event_calendar_colors_preprocess_calendar_item(&$variables) {
   // Gets the event entity.
@@ -25,7 +25,7 @@ function event_calendar_colors_preprocess_calendar_item(&$variables) {
   // Sets the event status color.
   $variables['event_status_color'] = t('status-' . strtolower($event_status->getName()));
 
-  // Attach dynamic library to events.
+  // Attaches dynamic library to events.
   $variables['#attached']['library'][] = 'event_calendar_colors/event_calendar_colors';
   $variables['#cache']['max-age'] = 0;
 }
@@ -46,12 +46,14 @@ function event_calendar_colors_library_info_alter(&$libraries, $extension) {
   }
 }
 
-// @todo: Comment.
+/**
+ * Implements hook_theme_registry_alter().
+ */
 function event_calendar_colors_theme_registry_alter(&$theme_registry) {
-  // Override calendar_item template from calendar module.
+  // Overrides calendar_item template from calendar module.
   if (!empty($theme_registry['calendar_item'])) {
-    // @todo: modules/custom/..
-    $theme_registry['calendar_item']['path'] = 'modules/custom/event_calendar/event_calendar_colors/templates';
-    $theme_registry['calendar_item']['theme path'] = 'modules/custom/event_calendar/event_calendar_colors';
+    $module_path = drupal_get_path('module', 'event_calendar');
+    $theme_registry['calendar_item']['path'] = $module_path . '/event_calendar_colors/templates';
+    $theme_registry['calendar_item']['theme path'] = $module_path . '/event_calendar_colors';
   }
 }

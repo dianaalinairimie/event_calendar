@@ -30,9 +30,8 @@ class StatusColorManager implements StatusColorManagerInterface {
 
   /**
    * The alias cleaner service.
-   * @todo: this is not right. It is another class that you need.
-   * @todo: is the AliasCleaner in core ?
-   * @var Drupal\Core\Asset\LibraryDiscovery
+   *
+   * @var \Drupal\pathauto\AliasCleaner
    */
   protected $aliasCleaner;
 
@@ -66,12 +65,12 @@ class StatusColorManager implements StatusColorManagerInterface {
    * {@inheritdoc}
    */
   public function generateCssFiles($event_colors) {
-    // Search for the library.
+    // Searches for the library.
     $libs = $this->libraryDiscovery->getLibraryByName('event_calendar_colors', 'event_color_default');
     $css_files = $libs['css'];
-    // Set return value to TRUE to check if the css files are written correctly.
+    // Sets return value to TRUE to check if the css files are written correctly.
     $return = TRUE;
-    // Parse each css file and replace the color and class placeholders.
+    // Parses each css file and replace the color and class placeholders.
     foreach ($css_files as $css) {
       $content = '';
       $css_content = file_get_contents(getcwd() . '/' . $css['data']);
@@ -82,13 +81,13 @@ class StatusColorManager implements StatusColorManagerInterface {
         $content .= $temp_content;
       }
 
-      // Generate the css file names.
+      // Generates the css file names.
       $file_name = strrchr($css['data'], '/');
       $path = implode('/', [
         $this->fileSystem->realpath(file_default_scheme() . "://"),
         'css' . $file_name,
       ]);
-      // Check if the file was written.
+      // Checks if the file was written.
       $return = $return && file_put_contents($path, $content);
     }
 

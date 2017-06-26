@@ -1,107 +1,12 @@
 <?php
 
-// @todo: file comment
+/**
+ * @file
+ * Contains hook implementations.
+ */
 
-use Drupal\Core\Database\Database;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
-use Drupal\taxonomy\Entity\Term;
-use Drupal\taxonomy\Entity\Vocabulary;
-
-/**
- * Implements hook_install().
- * @todo: install should be in .install file.
- */
-function event_calendar_install() {
-  // Defines default events status.
-  $new_terms = array('Approved', 'Denied', 'Pending');
-  // @todo: Instead of ::load, ::create function you should use entity type
-  // @todo: manager. You can also add a service that saves events status.
-  // @todo: It is hard to believe that you don't have any service defined in this
-  // @todo: module.
-  // Create terms fors events status vocabulary.
-  if (!empty(Vocabulary::load('events_status'))) {
-    foreach ($new_terms as $new_term) {
-      $term = Term::create([
-        'vid' => 'events_status',
-        'name' => $new_term,
-      ]);
-      $term->save();
-    }
-  }
-}
-
-/**
- * Implements hook_node_presave().
- * @todo: Here you should use NodeInterface instead of EntityInterface,
- * @todo: because you know for sure that this is a node.
- */
-function event_calendar_node_presave(EntityInterface $node) {
-  // @todo: There is too much logic, it verifies the node type, the event status,
-  // @todo: gets the informations from the event settings, constructs the email
-  // @todo: and sends it. This part should be broke down in multiple services.
-  // @todo first to make the checks and get the all the data neeed for
-  // @todo: constructing the  message. The second one should create the email
-  // @todo: and send it. Like it is now, it is not flexible, reusable and
-  // @todo: testable. Keep in mind that this is a contrib module and direct
-  // @todo: modifications will be not allowed.
-  // Check if node's type is event or new.
-  if ($node->bundle() == 'event_calendar' && $node->isNew()) {
-    $terms = \Drupal::entityTypeManager()
-      ->getStorage('taxonomy_term')
-      ->loadByProperties(['name' => setDefaultStatus()]);
-    foreach ($terms as $term) {
-      if ($term->get('vid')
-          ->first()
-          ->getValue()['target_id'] == 'events_status'
-      ) {
-        // Sets default status of event on "Pending" or "Approved".
-        $node->set('field_event_status', $term->id());
-      }
-    }
-
-    // Check if event has status field.
-    if (!empty($event_status = $node->get('field_event_status')
-      ->first())
-    ) {
-      // Sets events status name
-      $status_name = \Drupal::service('entity_type.manager')
-        ->getStorage('taxonomy_term')
-        ->load($event_status->getValue()['target_id']);
-    }
-
-    // Sets data for email content.
-    $data = [
-      'event_name' => $node->getTitle(),
-      'site_name' => \Drupal::config('system.site')->get('name'),
-      'start_date' => $node->get('field_event_date')
-        ->first()
-        ->getValue()['value'],
-      'event_author' => $node->getOwner()->getDisplayName(),
-      'approval_url' => \Drupal::request()
-          ->getSchemeAndHttpHost() . Url::fromRoute('event_calendar.manage_events')
-          ->toString(),
-      'event_status' => $status_name->getName()
-    ];
-
-    // Gets events settings.
-    $events_settings = \Drupal::config('events.settings');
-    // Gets email configuration from settings form.
-    $params = [
-      'subject' => Drupal::service('token')
-        ->replace($events_settings->get('admin_email_subject'), $data),
-      'body' => Drupal::service('token')
-        ->replace($events_settings->get('admin_email_content'), $data)
-    ];
-
-    //If this setting exists, send email when a new event is created.
-    send_email('event_calendar', 'basic', \Drupal::currentUser()
-      ->getEmail(), \Drupal::currentUser()
-      ->getPreferredLangcode(), $params);
-  }
-}
 
 /**
  * Send emails on create or update events.
@@ -129,29 +34,8 @@ function send_email($module, $key, $to, $langcode, $params) {
  *   The name of the status.
  */
 function setDefaultStatus() {
-  // @todo: A best practice is to keep a single return at the end of the
-  // @todo: function because it is more readable. Here you can use one line
-  // @todo: if. return (condtion) ? x : y;
-  if (\Drupal::config('events.settings')->get('status')) {
-    return 'Approved';
-  }
-  else {
-    return 'Pending';
-  }
-}
-
-/**
- * Implements hook_views_data_alter().
- */
-function event_calendar_views_data_alter(array &$event) {
-  // @todo: You are referencing views, but it is not set as a dependency.
-  $event['node']['event_calendar_bulk_form'] = array(
-    'title' => t('Event operations bulk form'),
-    'help' => t('Add a form element that lets you run operations on multiple events.'),
-    'field' => array(
-      'id' => 'event_calendar_bulk_form',
-    ),
-  );
+  return (\Drupal::config('events.settings')
+    ->get('status')) ? 'Approved' : 'Pending';
 }
 
 /**
@@ -170,100 +54,6 @@ function event_calendar_form_alter(&$form, FormStateInterface $form_state, $form
 }
 
 /**
- * Helper function to send emails on event update.
- *
- * @param $event_entity
- *   The updated event calendar entity.
- */
-function updateEvents($event_entity) {
-  // @todo: Helper function should not be defined in modules, they should be
-  // @todo: moved in services or traits.
-  // @todo: Same issue here as on node presave, too much logic.
-  // @todo: When defining methods or services you should remove or|and in logic.
-  // @todo: i.e.: a method should not save the node and send the mail.
-  // Events settings.
-  $events_settings = \Drupal::config('events.settings');
-
-  // The recipients options.
-  $recipients_options = $events_settings->get('recipients_approved_events');
-  // Sends emails only to users who have the configured role.
-  if (!empty($recipients_options)) {
-    if (!empty($event_status = $event_entity->get('field_event_status')
-      ->first())) {
-      $status_name = \Drupal::service('entity_type.manager')
-        ->getStorage('taxonomy_term')
-        ->load($event_status->getValue()['target_id']);
-    }
-
-    // Sets data for email content.
-    $data = [
-      'event_name' => $event_entity->getTitle(),
-      'site_name' => \Drupal::config('system.site')->get('name'),
-      'start_date' => $event_entity->get('field_event_date')
-        ->first()
-        ->getValue()['value'],
-      'event_author' => $event_entity->getOwner()->getDisplayName(),
-      'approval_url' => \Drupal::request()
-          ->getSchemeAndHttpHost() . Url::fromRoute('event_calendar.manage_events')
-          ->toString(),
-      'event_status' => $status_name->getName()
-    ];
-
-    // Gets email configuration from settings form.
-    $params = [
-      'subject' => Drupal::service('token')
-        ->replace($events_settings->get('users_email_subject'), $data),
-      'body' => Drupal::service('token')
-        ->replace($events_settings->get('users_email_content'), $data)
-    ];
-
-    $queue_factory = \Drupal::service('queue');
-    $queue = $queue_factory->get('email_processor');
-
-    // Add emails of recipients in queue.
-    foreach ($recipients_options as $role) {
-      if (!empty($role)) {
-        $ids = Database::getConnection('default')
-          ->select('user__roles', 'ur')
-          ->fields('ur', ['entity_id'])
-          ->condition('ur.roles_target_id', $role)
-          ->execute()
-          ->fetchAll();
-        foreach ($ids as $id) {
-          $user = \Drupal::service('entity_type.manager')
-            ->getStorage('user')
-            ->load($id->entity_id);
-          $item = new \stdClass();
-          $item->id = $id->entity_id;
-          $item->data = $params;
-          $item->email = $user->getEmail();
-          $item->langcode = $user->getPreferredLangcode();
-          $queue->createItem($item);
-        }
-      }
-    }
-  }
-}
-
-/**
- * Implements hook_node_update().
- * @todo: in contrib modules is a best practice to keep the hooks in
- * @todo: alphabetical order.
- * @todo: Keep the same definitions, here you use NodeInterface, on presave
- * @todo: EntityInterface.
- */
-function event_calendar_node_update(NodeInterface $node) {
-  // Check if event status is updated.
-  if ($node->bundle() == 'event_calendar' && $node->hasField('field_event_status') && !empty($node->get('field_event_status')
-      ->first()) && !empty($node->original->get('field_event_status')->first())
-  // @todo: this is ugly.
-  ) {
-    // Send email after event was approved or denied.
-    updateEvents($node);
-  }
-}
-
-/**
  * Implements hook_mail().
  */
 function event_calendar_mail($key, &$message, $params) {
@@ -275,6 +65,75 @@ function event_calendar_mail($key, &$message, $params) {
       $message['body'][0] = render($params['body']);
       break;
 
-      // @todo: default is missing.
+    default:
   }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function event_calendar_node_presave(NodeInterface $node) {
+  // Checks if node's type is event or new.
+  if ($node->bundle() == 'event_calendar' && $node->isNew()) {
+    $terms = \Drupal::entityTypeManager()
+      ->getStorage('taxonomy_term')
+      ->loadByProperties(['name' => setDefaultStatus()]);
+    foreach ($terms as $term) {
+      if ($term->get('vid')
+          ->first()
+          ->getValue()['target_id'] == 'events_status'
+      ) {
+        // Sets default status of event on "Pending" or "Approved".
+        $node->set('field_event_status', $term->id());
+      }
+    }
+
+    // Checks if event has status field and sets email content.
+    $data = \Drupal::service('event_calendar.message_builder')
+      ->buildMessage($node);
+
+    // Sends email when a new event is created if this setting exists.
+    \Drupal::service('event_calendar.email_sender')->sendEmail($data);
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function event_calendar_node_update(NodeInterface $node) {
+  // Checks if event status is updated.
+  if ($node->bundle() == 'event_calendar' && $node->hasField('field_event_status') && !empty($node->get('field_event_status')
+      ->first()) && !empty($node->original->get('field_event_status')->first())
+    // @todo: this is ugly.
+  ) {
+    // Events settings.
+    $events_settings = \Drupal::config('events.settings');
+
+    // The recipients options.
+    $recipients_options = $events_settings->get('recipients_approved_events');
+    // Sends emails only to users who have the configured role.
+    if (!empty($recipients_options)) {
+
+      // Sets data for email content.
+      $data = \Drupal::service('event_calendar.message_builder')
+        ->buildMessage($node);
+
+      // Send email after event was approved or denied.
+      \Drupal::service('event_calendar.email_queue_sender')
+        ->sendEmail($events_settings, $recipients_options, $data);
+    }
+  }
+}
+
+/**
+ * Implements hook_views_data_alter().
+ */
+function event_calendar_views_data_alter(array &$event) {
+  $event['node']['event_calendar_bulk_form'] = array(
+    'title' => t('Event operations bulk form'),
+    'help' => t('Add a form element that lets you run operations on multiple events.'),
+    'field' => [
+      'id' => 'event_calendar_bulk_form',
+    ],
+  );
 }

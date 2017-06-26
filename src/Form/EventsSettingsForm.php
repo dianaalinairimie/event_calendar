@@ -2,9 +2,10 @@
 
 namespace Drupal\event_calendar\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\user\Entity\Role;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines the admin configuration form for the event calendar module.
@@ -12,6 +13,27 @@ use Drupal\user\Entity\Role;
  * @package Drupal\event_calendar\Form
  */
 class EventsSettingsForm extends ConfigFormBase {
+
+  /**
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityManager
+   */
+  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+    $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity_type.manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -33,15 +55,14 @@ class EventsSettingsForm extends ConfigFormBase {
     }
 
     // Sets an array with all users roles.
-    // @todo: use entity type manager, injected.
-    $roles = Role::loadMultiple();
+    $roles = $this->entityTypeManager->getStorage('user_role')->loadMultiple();
     foreach ($roles as $role) {
       if ($role->id() !== 'anonymous') {
         $roles_name[$role->id()] = $role->label();
       }
     }
 
-    // Check if recipients exist for approved events.
+    // Checks if recipients exist for approved events.
     if (empty(array_filter($events_config->get('recipients_approved_events')))) {
       $config_roles_name = $events_config->get('recipients_approved_events');
       // Default sets all authenticated users receive email on approved events.
@@ -125,8 +146,6 @@ class EventsSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // @todo: try to move this to a service.
-
     $this->config('events.settings')
       ->set('status', $form_state->getValue('status'))
       ->set('recipients_approved_events', $form_state->getValue('recipients_approved_events'))
